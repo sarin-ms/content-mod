@@ -139,9 +139,219 @@ function HistoryItem({ item, onClick }) {
 }
 
 function ContentModerator() {
+    const [text, setText] = useState("");
+    const [result, setResult] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [history, setHistory] = useState([]);
+    const [charCount, setCharCount] = useState(0);
+    const textareaRef = useRef(null);
+
+    const MAX_CHARS = 1000;
+
+    const analyze = async (inputText) => {
+        const target = inputText ?? text;
+        if (!target.trim() || loading) return;
+
+        setLoading(true);
+        setError(null);
+        setResult(null);
+
+        try {
+            const res = await fetch(`${API}/predict`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: target }),
+            });
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const data = await res.json();
+            setResult(data);
+            setHistory((prev) => [{ text: target.slice(0, 80), result: data }, ...prev].slice(0, 6));
+        } catch (err) {
+            setError(err.message || "Could not reach the API. Is your FastAPI server running?");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTextChange = (e) => {
+        const val = e.target.value.slice(0, MAX_CHARS);
+        setText(val);
+        setCharCount(val.length);
+        if (result) setResult(null);
+    };
+
+    const loadExample = (example) => {
+        setText(example.text);
+        setCharCount(example.text.length);
+        setResult(null);
+        textareaRef.current?.focus();
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) analyze();
+    };
+
     return (
-        <h1>Hello World</h1>
-    )
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 24px", fontFamily: "system-ui, sans-serif" }}>
+            <div style={{ marginBottom: 32 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "#111827", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+                    <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "#111827" }}>Content Moderator</h1>
+                </div>
+                <p style={{ margin: 0, fontSize: 14, color: "#6b7280" }}>
+                    Powered by DistilBERT fine-tuned on the Jigsaw dataset · F1 ≈ 0.87
+                </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 20, alignItems: "start" }}>
+                <div>
+                    <div style={{ position: "relative" }}>
+                        <textarea
+                            ref={textareaRef}
+                            value={text}
+                            onChange={handleTextChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Paste or type any text to check for toxic content..."
+                            style={{
+                                width: "100%",
+                                minHeight: 140,
+                                padding: "14px 16px",
+                                paddingBottom: 36,
+                                fontSize: 14,
+                                lineHeight: 1.6,
+                                border: "1px solid #d1d5db",
+                                borderRadius: 12,
+                                resize: "vertical",
+                                outline: "none",
+                                fontFamily: "inherit",
+                                color: "#111827",
+                                background: "#fff",
+                                boxSizing: "border-box",
+                            }}
+                        />
+                        <div style={{ position: "absolute", bottom: 10, right: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 11, color: charCount > MAX_CHARS * 0.9 ? "#ef4444" : "#9ca3af" }}>
+                                {charCount}/{MAX_CHARS}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "10px 0 14px" }}>
+                        <span style={{ fontSize: 12, color: "#9ca3af", alignSelf: "center" }}>Try:</span>
+                        {EXAMPLES.map((ex, i) => (
+                            <button
+                                key={i}
+                                onClick={() => loadExample(ex)}
+                                style={{
+                                    fontSize: 12,
+                                    padding: "4px 10px",
+                                    border: "0.5px solid #e5e7eb",
+                                    borderRadius: 99,
+                                    background: "white",
+                                    cursor: "pointer",
+                                    color: "#374151",
+                                }}
+                            >
+                                {ex.label} example {Math.floor(i / 2) + 1}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => analyze()}
+                        disabled={loading || !text.trim()}
+                        style={{
+                            width: "100%",
+                            padding: "12px 0",
+                            background: loading || !text.trim() ? "#e5e7eb" : "#111827",
+                            color: loading || !text.trim() ? "#9ca3af" : "white",
+                            border: "none",
+                            borderRadius: 10,
+                            fontSize: 14,
+                            fontWeight: 500,
+                            cursor: loading || !text.trim() ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 8,
+                            transition: "background 0.15s",
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="32" strokeDashoffset="12" />
+                                </svg>
+                                Analyzing...
+                            </>
+                        ) : (
+                            <>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+                                    <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                </svg>
+                                Analyze text
+                                <span style={{ fontSize: 11, opacity: 0.6 }}>⌘↵</span>
+                            </>
+                        )}
+                    </button>
+
+                    {error && (
+                        <div style={{ marginTop: 14, padding: "12px 14px", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, fontSize: 13, color: "#991b1b" }}>
+                            {error}
+                        </div>
+                    )}
+
+                    {result && <ResultCard result={result} />}
+                </div>
+
+                <div>
+                    <div style={{ background: "#f9fafb", borderRadius: 12, padding: "14px 16px", marginBottom: 14 }}>
+                        <p style={{ margin: "0 0 12px", fontSize: 11, fontWeight: 500, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>Model info</p>
+                        {[
+                            { label: "Architecture", value: "DistilBERT" },
+                            { label: "Dataset", value: "Jigsaw" },
+                            { label: "F1 score", value: "~0.87" },
+                            { label: "Format", value: "ONNX" },
+                            { label: "Latency", value: "~50ms" },
+                        ].map(({ label, value }) => (
+                            <div key={label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                                <span style={{ fontSize: 12, color: "#9ca3af" }}>{label}</span>
+                                <span style={{ fontSize: 12, fontWeight: 500, color: "#374151" }}>{value}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    {history.length > 0 && (
+                        <div>
+                            <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 500, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>Recent</p>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                {history.map((item, i) => (
+                                    <HistoryItem
+                                        key={i}
+                                        item={item}
+                                        onClick={(h) => {
+                                            setText(h.text);
+                                            setCharCount(h.text.length);
+                                            setResult(h.result);
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+    );
 }
 
 export default ContentModerator;    
