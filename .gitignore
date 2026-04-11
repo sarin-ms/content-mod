@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 
 .env
+
+__pycache__
+
+content-mod/
+
+checkpoint-4689/
