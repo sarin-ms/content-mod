@@ -11,7 +11,7 @@ This uses a fine-tuned DistilBERT model to instantly detect whether a given stri
 
 And the best part? It's a completely **free public API with zero authentication required**. Just make a request and get a response.
 
-👉 **[Check out the live app and API docs here!](https://content-mod.sarinms.dev)**
+👉 **[Check out the live app and API docs here!](https://content-mod.sarinms.dev/api)**
 
 ---
 
