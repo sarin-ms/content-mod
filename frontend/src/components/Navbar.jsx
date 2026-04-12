@@ -13,7 +13,10 @@ const Navbar = () => {
             <div className="container mx-auto px-4 md:px-6 lg:px-8">
                 <div className="flex items-center justify-between">
                     <div className="text-black text-2xl font-extrabold tracking-tight">
-                        <Link to="/">Content Moderation</Link>
+                        <Link to="/" className="flex items-center gap-2">
+                            <img src="/logo_bg.png" alt="Logo" className="h-8" />
+                            <span className="text-2xl font-bold">Content Moderation</span>
+                        </Link>
                     </div>
 
                     <div className="hidden md:block">
