@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     return (
@@ -9,15 +10,15 @@ const Navbar = () => {
                     <div className="absolute left-1/2 -translate-x-1/2">
                         <ul className="flex gap-6 pb-2 navbar-links">
                             <li className="group relative text-black cursor-pointer transition-colors duration-300">
-                                Home
+                                <Link to="/">Home</Link>
                                 <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
                             </li>
                             <li className="group relative text-black cursor-pointer transition-colors duration-300">
-                                Safety Standards
+                                <Link to="/safety-standards">Safety Standards</Link>
                                 <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
                             </li>
                             <li className="group relative text-black cursor-pointer transition-colors duration-300">
-                                API
+                                <Link to="/api">API</Link>
                                 <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
                             </li>
                         </ul>

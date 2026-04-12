@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import InputBox from "./InputBox";
+import InputBox from "../components/InputBox";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
