@@ -1,1 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Nabla&family=Noto+Sans+Mono:wght@100..900&family=Science+Gothic:wght@100..900&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-manrope: "Manrope", sans-serif;
+  --color-primary: #0059ff;
+}
+
+.navbar-links li {
+  font-family: var(--font-manrope);
+  font-weight: 600;
+}
+
+.navbar-links li:hover {
+  color: #0059ff;
+}
