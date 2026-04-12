@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
-import ContentModerator from "./components/ContentModerator";
+import Navbar from './components/Navbar';
+import ContentModerator from './components/ContentModeration';
 
 function App() {
 
   return (
     <>
+      <Navbar />
+      {/* <ContentModerator /> */}
       <ContentModerator />
     </>
   )
