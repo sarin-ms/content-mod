@@ -12,7 +12,7 @@ def test_clean_test_is_not_flagged():
 def test_toxic_text_is_flagged():
     r = client.post("/predict", json={"text": "You are absolutely worthless."})
     assert r.status_code == 200
-    assert r.json()["label"] == "toxic "
+    assert r.json()["label"] == "toxic"
 
 
 def test_response_has_required_fields():
