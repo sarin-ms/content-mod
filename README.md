@@ -1,6 +1,6 @@
 # 🛡️ Content Moderation API
 
-![Build Status](https://img.shields.io/badge/Status-Live-success)
+![CI](https://github.com/sarin-ms/content-mod/actions/workflows/ci.yml/badge.svg)
 ![Model](https://img.shields.io/badge/Model-DistilBERT-blue)
 ![F1 Score](https://img.shields.io/badge/F1_Score-~87%25-green)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
